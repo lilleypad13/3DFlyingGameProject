@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices.WindowsRuntime;
 using UnityEngine;
 
 public class CameraController : MonoBehaviour
@@ -11,9 +12,19 @@ public class CameraController : MonoBehaviour
     [SerializeField] private Vector3 baseOffset = new Vector3(0.0f, 9.0f, -10.0f);
     [SerializeField] private float maxSpeedExtraOffset = 5.0f;
     [SerializeField] private float rotationSpeed = 10.0f;
+    private float maxOffsetTime = 0.5f;
+    private Vector3 extraSpeedOffset
+    {
+        get
+        {
+            return -cam.transform.InverseTransformDirection(cam.transform.forward) *
+            maxSpeedExtraOffset;
+        }
+    }
+    private float offsetPercentage;
+    [SerializeField] private float extraZoomDamperFactor = 4.0f;
 
     private Vector3 originalCameraLocalPosition;
-
     private Vector3 cameraForwardRelativeToPlayerForward;
 
     private void Awake()
@@ -49,11 +60,48 @@ public class CameraController : MonoBehaviour
         transform.rotation = Quaternion.LookRotation(lookDirection, Vector3.up);
     }
 
+    #region Zoom Methods
+    
     private void CameraZoom()
     {
-        cam.transform.localPosition = 
-            originalCameraLocalPosition + 
-            -cam.transform.InverseTransformDirection(cam.transform.forward) * maxSpeedExtraOffset * DetermineExtraOffsetFromPlayerSpeed();
+        offsetPercentage = DetermineExtraOffsetFromPlayerSpeed();
+
+        // Determine cam position it WANTS to move to
+        Vector3 desiredCamPosition = originalCameraLocalPosition +
+            extraSpeedOffset *
+            offsetPercentage;
+
+        float distanceFromCamPositionToDesired = Vector3.Distance(desiredCamPosition, cam.transform.localPosition);
+
+        // Based on current cam position and position it wants to move to, choose 
+        // whether to move directly there or partially there
+        if(distanceFromCamPositionToDesired < 0.05f)
+        {
+            // Help prevent jitter for extremely small zoom changes
+            return;
+        }
+        else if (distanceFromCamPositionToDesired < 0.1f)
+        {
+            // General Zoom
+            GeneralZoom(desiredCamPosition);
+        }
+        else
+        {
+            // Controlled Zoom
+            ExtraSpeedZoom(desiredCamPosition);
+        }
+    }
+
+    private void GeneralZoom(Vector3 targetPosition)
+    {
+        cam.transform.localPosition = targetPosition;
+        Debug.Log("Standard ZOOM");
+    }
+
+    private void ExtraSpeedZoom(Vector3 targetPosition)
+    {
+        cam.transform.localPosition += (targetPosition - cam.transform.localPosition) / extraZoomDamperFactor;
+        Debug.Log("Extra Speed ZOOM");
     }
 
     private float DetermineExtraOffsetFromPlayerSpeed()
@@ -72,4 +120,5 @@ public class CameraController : MonoBehaviour
         return offsetPercentage;
     }
 
+    #endregion
 }
