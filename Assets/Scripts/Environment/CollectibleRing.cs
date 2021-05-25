@@ -6,29 +6,16 @@ using UnityEngine;
 public class CollectibleRing : MonoBehaviour
 {
     public static event Action<GameObject> CollectedRing;
-    //public static event Action CollectedRing;
 
     private void OnTriggerEnter(Collider other)
     {
         Debug.Log("Hit something");
 
-        if (other.gameObject.GetComponent<PlayerController_Flying>())
+        if (other.gameObject.GetComponent<PlayerManager>().CurrentGoal == this.gameObject)
         {
-            //CollectedRing();
+            Debug.Log("Was proper target");
             CollectedRing(gameObject);
         }
     }
-
-    //private void Collected(GameObject ring)
-    //{
-    //    Debug.Log("Collected ring." + gameObject.name);
-    //    Destroy(ring.gameObject);
-    //}
-
-    //private void Collected()
-    //{
-    //    Debug.Log("Collected ring." + gameObject.name);
-    //    Destroy(gameObject);
-    //}
 
 }
