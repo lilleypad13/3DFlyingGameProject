@@ -4,16 +4,16 @@ using UnityEngine;
 
 public class GuidePointer : MonoBehaviour
 {
+    [SerializeField] private PlayerManager playerManager;
+
     [SerializeField] private GameObject player;
-    [SerializeField] private Transform goal;
 
     private Vector3 relativeDirectionFromForwardToGoal;
 
-    private void Start()
-    {
-        //PointTowardsGoal();
-        PointTowardsGoalRelativeToForward();
-    }
+    //private void Start()
+    //{
+    //    PointTowardsGoalRelativeToForward();
+    //}
 
     private void Update()
     {
@@ -29,7 +29,14 @@ public class GuidePointer : MonoBehaviour
 
     private Vector3 PointTowardsGoal()
     {
-        return goal.position - player.transform.position;
+        if(playerManager.CurrentGoal != null)
+        {
+            return playerManager.CurrentGoal.transform.position - player.transform.position;
+        }
+        else
+        {
+            return Vector3.down;
+        }
     }
 
     private Vector3 PointTowardsGoalRelativeToForward()
