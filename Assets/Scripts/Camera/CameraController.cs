@@ -95,13 +95,11 @@ public class CameraController : MonoBehaviour
     private void GeneralZoom(Vector3 targetPosition)
     {
         cam.transform.localPosition = targetPosition;
-        Debug.Log("Standard ZOOM");
     }
 
     private void ExtraSpeedZoom(Vector3 targetPosition)
     {
         cam.transform.localPosition += (targetPosition - cam.transform.localPosition) / extraZoomDamperFactor;
-        Debug.Log("Extra Speed ZOOM");
     }
 
     private float DetermineExtraOffsetFromPlayerSpeed()
