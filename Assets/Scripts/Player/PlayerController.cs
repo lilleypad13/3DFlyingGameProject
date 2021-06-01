@@ -2,79 +2,78 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(PlayerController_Flying))]
 public class PlayerController : MonoBehaviour
 {
-    private Rigidbody rb;
-
-    [SerializeField] private float force = 10.0f;
-    public float CurrentAcceleration { get => currentAcceleration; }
-    private float currentAcceleration;
-    public float MaxAcceleration { get => maxAcceleration; }
-    private float maxAcceleration;
-    public float MaxVelocity { get => maxVelocity; }
-    private float maxVelocity;
-    public float CurrentVelocity { get => currentVelocity; }
-    private float currentVelocity;
-    private float lastVelocity;
-
-    private float originalMass;
-    [SerializeField] private float brakingMass = 120.0f;
+    PlayerController_Flying flyingMovement;
 
     private float horizontalInput;
     private float verticalInput;
-    private const string HORIZONTAL_INPUT = "Horizontal";
-    private const string VERTICAL_INPUT = "Vertical";
+
+    private bool isPressingAccelerate = false;
+    private bool isPressingCharge = false;
+
+    private string driftButtonName = "Fire2";
+    private string accelerationButtonName = "Fire1";
+
+    public bool IsInvertedControls
+    {
+        get => isInvertedControls;
+        set
+        {
+            isInvertedControls = value;
+            inversion *= -1.0f;
+        }
+    }
+    [SerializeField] private bool isInvertedControls = false;
+    private float inversion = 1.0f;
+
+    private void Awake()
+    {
+        flyingMovement = GetComponent<PlayerController_Flying>();
+    }
 
     private void Start()
     {
-        rb = GetComponent<Rigidbody>();
-        originalMass = rb.mass;
+        if (isInvertedControls)
+        {
+            inversion = -1.0f;
+        }
     }
 
     private void Update()
     {
-        CheckMaxVelocity();
-        CheckMaxAcceleration();
+        ReceivePlayerInput();
+    }
 
-        horizontalInput = Input.GetAxis(HORIZONTAL_INPUT);
-        verticalInput = Input.GetAxis(VERTICAL_INPUT);
+    private void ReceivePlayerInput()
+    {
+        horizontalInput = Input.GetAxisRaw("Horizontal");
+        verticalInput = Input.GetAxisRaw("Vertical");
 
-        if (Input.GetButton("Jump"))
+        if (Input.GetButton(driftButtonName))
         {
-            Brake();
+            isPressingCharge = true;
         }
         else
-            rb.mass = originalMass;
+        {
+            isPressingCharge = false;
+        }
+
+        if (Input.GetButton(accelerationButtonName))
+        {
+            isPressingAccelerate = true;
+        }
+        else
+        {
+            isPressingAccelerate = false;
+        }
     }
 
     private void FixedUpdate()
     {
-        currentVelocity = Vector3.Magnitude(rb.velocity);
-        currentAcceleration = (currentVelocity - lastVelocity) / Time.fixedDeltaTime;
-
-        Vector3 direction = Vector3.Normalize(new Vector3 (horizontalInput, 0.0f, verticalInput));
-        rb.AddForce(direction * force);
-
-        lastVelocity = Vector3.Magnitude(rb.velocity);
-    }
-
-    private void CheckMaxAcceleration()
-    {
-        if (currentAcceleration > maxAcceleration)
-            maxAcceleration = currentAcceleration;
-    }
-
-    private void CheckMaxVelocity()
-    {
-        float currentVelocity = Vector3.Magnitude(rb.velocity);
-
-        if (currentVelocity > maxVelocity)
-            maxVelocity = currentVelocity;
-    }
-
-    private void Brake()
-    {
-        rb.mass = brakingMass;
+        // Inputs in reverse position for direction vector because that influences which axis that input rotates AROUND
+        Vector3 direction = Vector3.Normalize(new Vector3(verticalInput * inversion, horizontalInput, 0.0f));
+        flyingMovement.Flying(direction, isPressingCharge, isPressingAccelerate);
     }
 }

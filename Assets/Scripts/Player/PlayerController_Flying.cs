@@ -2,8 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(ProjectileController))]
 public class PlayerController_Flying : MonoBehaviour
 {
+    ProjectileController projectileController;
+
     [SerializeField] private float rotationSpeed = 20.0f;
     public float MaxBaseSpeed { get => maxBaseSpeed; }
     [SerializeField] private float maxBaseSpeed = 30.0f;
@@ -20,74 +23,15 @@ public class PlayerController_Flying : MonoBehaviour
     private bool isAccelerating = false;
     private bool isTurbo = false;
 
-    public bool IsInvertedControls
+    private void Awake()
     {
-        get => isInvertedControls;
-        set
-        {
-            isInvertedControls = value;
-            inversion *= -1.0f;
-        }
-    }
-    [SerializeField] private bool isInvertedControls = false;
-    private float inversion = 1.0f;
-    private float horizontalInput;
-    private float verticalInput;
-
-    private bool isPressingAccelerate = false;
-    private bool isPressingCharge = false;
-
-    private string driftButtonName = "Fire2";
-    private string accelerationButtonName = "Fire1";
-
-    private void Start()
-    {
-        if (isInvertedControls)
-        {
-            inversion = -1.0f;
-        }
+        projectileController = GetComponent<ProjectileController>();
     }
 
-    private void Update()
-    {
-        ReceivePlayerInput();
-
-        if (Input.GetButton(driftButtonName))
-        {
-            isPressingCharge = true;
-        }
-        else
-        {
-            isPressingCharge = false;
-        }
-
-        if (Input.GetButton(accelerationButtonName))
-        {
-            isPressingAccelerate = true;
-        }
-        else
-        {
-            isPressingAccelerate = false;
-        }
-    }
-
-    private void ReceivePlayerInput()
-    {
-        horizontalInput = Input.GetAxisRaw("Horizontal");
-        verticalInput = Input.GetAxisRaw("Vertical");
-    }
-
-    private void FixedUpdate()
-    {
-        // Inputs in reverse position for direction vector because that influences which axis that input rotates AROUND
-        Vector3 direction = Vector3.Normalize(new Vector3(verticalInput * inversion, horizontalInput, 0.0f));
-        Flying(direction);
-    }
-
-    private void Flying(Vector3 dir)
+    public void Flying(Vector3 dir, bool isPressingCharge, bool isPressingAccelerate)
     {
         RotatePlayer(dir);
-        MovePlayer(dir);
+        MovePlayer(dir, isPressingCharge, isPressingAccelerate);
     }
 
     private void RotatePlayer(Vector3 dir)
@@ -95,7 +39,7 @@ public class PlayerController_Flying : MonoBehaviour
         transform.Rotate(dir.y * Vector3.up * rotationSpeed * Time.deltaTime);
     }
 
-    private void MovePlayer(Vector3 dir)
+    private void MovePlayer(Vector3 dir, bool isPressingCharge, bool isPressingAccelerate)
     {
         if (isPressingCharge)
         {
@@ -139,37 +83,28 @@ public class PlayerController_Flying : MonoBehaviour
             }
         }
 
-        // movementSpeed = some base speed value + turbo (or 0)
         if (isTurbo)
         {
-            Debug.Log("Entered Turbo Speed.");
-            movementSpeed = maxBaseSpeed + extraTurboSpeed;
-            isTurbo = false;
-            chargeValue = 0.0f;
+            EnteredTurboState();
         }
 
         DetermineMovement(dir);
+    }
+
+    private void EnteredTurboState()
+    {
+        Debug.Log("Entered Turbo Speed.");
+        movementSpeed = maxBaseSpeed + extraTurboSpeed;
+        isTurbo = false;
+        chargeValue = 0.0f;
+
+        projectileController.FireProjectile();
     }
 
     private void DetermineMovement(Vector3 dir)
     {
         Vector3 movementDirection = Vector3.Normalize(transform.forward + dir.x * Vector3.up);
         transform.position += movementDirection * movementSpeed * Time.deltaTime;
-    }
-
-    private void ApplyTurbo()
-    {
-        
-    }
-
-    private float CheckSpeedBelowZero(float speed)
-    {
-        if(speed < 0.0f)
-        {
-            speed = 0.0f;
-        }
-
-        return speed;
     }
 
 }
