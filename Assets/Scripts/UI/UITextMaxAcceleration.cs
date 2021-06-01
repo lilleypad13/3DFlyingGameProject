@@ -18,7 +18,7 @@ public class UITextMaxAcceleration : MonoBehaviour
 
     private void Update()
     {
-        maxAcceleration = playerController.MaxAcceleration;
-        maxAccelerationText.text = "Max Acceleration: " + maxAcceleration.ToString("F2");
+        //maxAcceleration = playerController.MaxAcceleration;
+        //maxAccelerationText.text = "Max Acceleration: " + maxAcceleration.ToString("F2");
     }
 }

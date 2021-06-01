@@ -18,7 +18,7 @@ public class UITextCurrentAcceleration : MonoBehaviour
 
     private void Update()
     {
-        currentAccceleration = playerController.CurrentAcceleration;
-        currentAccelerationText.text = "Current Acceleration: " + currentAccceleration.ToString("F2");
+        //currentAccceleration = playerController.CurrentAcceleration;
+        //currentAccelerationText.text = "Current Acceleration: " + currentAccceleration.ToString("F2");
     }
 }
