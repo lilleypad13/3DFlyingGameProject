@@ -5,6 +5,7 @@ public class ProjectileController : MonoBehaviour
     [SerializeField] private GameObject projectilePrefab;
     [SerializeField] private float maxProjectileSize = 1.0f;
     [SerializeField] private float projectileGrowthRate = 1.0f;
+    [SerializeField] private float projectileForceMultiplier = 50.0f;
 
     public void FireProjectile()
     {
@@ -15,6 +16,7 @@ public class ProjectileController : MonoBehaviour
         {
             projectileProperties.MaxSize = maxProjectileSize;
             projectileProperties.GrowthRate = projectileGrowthRate;
+            projectileProperties.ForceMultiplier = projectileForceMultiplier;
         }
         else
         {
