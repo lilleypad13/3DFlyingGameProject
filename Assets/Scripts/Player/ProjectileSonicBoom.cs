@@ -16,6 +16,12 @@ public class ProjectileSonicBoom : MonoBehaviour
         set => growthRate = value;
     }
     private float growthRate = 1.0f;
+    public float ForceMultiplier
+    {
+        get => forceMultiplier;
+        set => forceMultiplier = value;
+    }
+    private float forceMultiplier;
 
     private void Update()
     {
@@ -36,8 +42,14 @@ public class ProjectileSonicBoom : MonoBehaviour
 
         if (destructibleCheck != null)
         {
-            destructibleCheck.Destroyed();
+            destructibleCheck.Damaged(forceMultiplier * ImpactDirection(other.transform.position));
+            //destructibleCheck.Destroyed();
         }
+    }
+
+    private Vector3 ImpactDirection(Vector3 targetPosition)
+    {
+        return Vector3.Normalize(targetPosition - transform.position);
     }
 
     private void EndProjectile()

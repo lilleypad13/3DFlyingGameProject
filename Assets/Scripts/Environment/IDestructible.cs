@@ -2,5 +2,6 @@ using UnityEngine;
 
 public interface IDestructible
 {
-    void Destroyed();
+    void Damaged(Vector3 forceApplied);
+    void EndLife();
 }
