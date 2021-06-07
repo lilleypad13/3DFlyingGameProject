@@ -9,11 +9,9 @@ public class CollectibleRing : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log("Hit something");
-
-        if (other.gameObject.GetComponent<PlayerManager>().CurrentGoal == this.gameObject)
+        if (other.gameObject.GetComponent<PlayerController>() && 
+            other.gameObject.GetComponent<PlayerManager>().CurrentGoal == this.gameObject)
         {
-            Debug.Log("Was proper target");
             CollectedRing(gameObject);
         }
     }
