@@ -93,7 +93,6 @@ public class PlayerController_Flying : MonoBehaviour
 
     private void EnteredTurboState()
     {
-        Debug.Log("Entered Turbo Speed.");
         movementSpeed = maxBaseSpeed + extraTurboSpeed;
         isTurbo = false;
         chargeValue = 0.0f;
